@@ -3,6 +3,7 @@ import time
 import shutil
 import sys
 from git import Repo
+from collections import namedtuple
 
 
 BACKUP_FILES = ('/etc/vimrc',
@@ -10,6 +11,8 @@ BACKUP_FILES = ('/etc/vimrc',
 
 BACKUP_DIR = ('/home/viet/backup_folder')
 
+
+OptionsTuple = namedtuple('OptionsTuple', 'index func description')
 
 def decorate(func):
     def wrapper(*args, **kwargs):
@@ -53,32 +56,46 @@ def gather_backup_files():
 def main():
     while True:
         os.system('clear')
-        main_menu()
-        user_choice = input('Choose an option: ')
-
-        while not user_choice.isdigit() or int(user_choice) < 0 or int(user_choice) > 5:
-            print('Invalid index !!!')
+        options = main_menu()
+        
+        user_input = input('\nChoose an option: ')
+        while not user_input.isdigit():
+            print('Please specify a valid index !!!')
             time.sleep(1)
             os.system('clear')
 
             main_menu()
-            user_choice = input('Choose an option: ')
+            user_input = input('\nChoose an option: ')
 
-        if user_choice == '1':
-            gather_backup_files()
-        elif user_choice == '3':
-            print('Exiting ...')
-            sys.exit(0)
+        user_choice = int(user_input)
+        if user_choice in [option.index for option in options]:
+            choosen_option = list(filter(lambda x: x.index == int(user_choice), options))[0]
+            choosen_option.func()
+        else:
+            print('Wrong index')
+            time.sleep(1)
+            os.system('clear')
+
 
 
 @decorate
 def main_menu():
-    options = {1: 'Gather backup files into backup dir',
-               2: 'Push backup files to git repo',
-               3: 'Exit\n'}
+    options = list()
 
-    for index, option in options.items():
-        print(f'{str(index)}. {option}')
+    options.append(OptionsTuple(index=1,
+                                func=gather_backup_files,
+                                description='Gather backup files into backup dir'))
+    options.append(OptionsTuple(index=2,
+                                func=None,
+                                description='Push to git repository'))
+    options.append(OptionsTuple(index=3,
+                                func=lambda : sys.exit(0),
+                                description='Exit'))
+
+    for option in options:
+        print(f'{option.index}. {option.description}')
+
+    return options
 
 def post_action_menu():
     print('\n1. Back to main menu')
