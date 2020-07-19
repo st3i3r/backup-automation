@@ -7,19 +7,16 @@ from collections import namedtuple
 
 BACKUP_FILES = ('/etc/vimrc',
                 '/home/viet/.bashrc',
-                '/home/viet/ili9341.txt'
+                '/home/viet/.config/mpd',
+                '/home/viet/.ncmpcpp'
                 )
 
-GIT_USERNAME = 'quangviet910@gmail.com'
-GIT_PASSWORD = 'Qviet1997!@#'
-GIT_URL = f'https://{GIT_USERNAME}:{GIT_PASSWORD}@github.com/st3i3r/backup-automation.git'
-
-BACKUP_DIR = ('/home/viet/backup_folder')
+BACKUP_DIR = ('/home/viet/.config/config_files')
 
 OptionsTuple = namedtuple('OptionsTuple', 'index func description')
 
 
-def decorate(func):
+def print_banner(func):
     def wrapper(*args, **kwargs):
         print()
         print(''.center(50, '-'))
@@ -36,7 +33,7 @@ def create_backup_dir(dir_name=BACKUP_DIR):
     os.mkdir(path=BACKUP_DIR)
 
 
-@decorate
+@print_banner
 def gather_backup_files():
     os.system('clear')
     print('Gathering backup files to backup dir ...\n')
@@ -48,18 +45,31 @@ def gather_backup_files():
             print('Exiting ...')
             sys.exit(-1)
         else:
-            try:
-                if os.path.isdir(file):
-                    shutil.copytree(src=file, dst=BACKUP_DIR)
-                else:
-                    shutil.copy2(src=file, dst=BACKUP_DIR)
-                print(f'[+] Copied file {file} to backup directory')
-            except FileNotFoundError:
-                print(f'[!!!] File {repr(file)} doesn\'t exist. Ignored.')
+            dst_abs_path = os.path.join(BACKUP_DIR, file.split('/')[-1])
+            copy_file(file, dst_abs_path)
 
     print()
     _ = input('Press Enter to continue ...')
 
+
+def copy_file(src_file, dst_file):
+    try:
+        if os.path.isdir(src_file):
+            shutil.copytree(src=src_file, dst=dst_file)
+        else:
+            shutil.copy2(src=src_file, dst=dst_file)
+    except FileNotFoundError:
+        print(f'[!] File {repr(src_file)} doesn\'t exist. Ignored.')
+    except shutil.SameFileError:
+        print(f'[!] File {repr(src_file)} exists. Overwriting ...')
+        os.remove(dst_file)
+        shutil.copy2(src=src_file, dst=dst_file)
+    except FileExistsError:
+        print(f'[!] Directory {dst_file} exists !!! Overwiting ...')
+        shutil.rmtree(dst_file)
+        shutil.copytree(src=src_file, dst=dst_file)
+
+    print(f'[+] Copied file {src_file} to {dst_file}')
 
 def main():
     while True:
@@ -85,7 +95,7 @@ def main():
             os.system('clear')
 
 
-@decorate
+@print_banner
 def main_menu():
     options = list()
 
@@ -105,10 +115,6 @@ def main_menu():
     return options
 
 
-def post_action_menu():
-    print('\n1. Back to main menu')
-
-
 def git_add(repo):
     repo.git.add('--all')
     print('Git add')
@@ -116,7 +122,7 @@ def git_add(repo):
 
 def git_commit(repo, message=None, author=None):
     if not message:
-        message = 'Update configuration files.'
+        message = '[Automatic script] - Update configuration files.'
     if not author:
         author = 'quangviet910@gmail.com'
 
@@ -132,7 +138,7 @@ def git_push(repo):
 
 def push_to_repo(repo=None):
     if not repo:
-        repo = git.Repo(path='/home/viet/backup_project/.git')
+        repo = git.Repo(path='/home/viet/.config/.git')
     git_add(repo)
     git_commit(repo)
     git_push(repo)
