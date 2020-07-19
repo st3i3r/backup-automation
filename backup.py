@@ -7,6 +7,7 @@ from collections import namedtuple
 
 BACKUP_FILES = ('/etc/vimrc',
                 '/home/viet/.bashrc',
+                '/home/viet/ili9341.txt'
                 )
 
 GIT_USERNAME = 'quangviet910@gmail.com'
