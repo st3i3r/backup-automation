@@ -124,7 +124,7 @@ def git_push(repo):
 
 def push_to_repo(repo=None):
     if not repo:
-        repo = git.Repo(path='/home/viet/backup_project/')
+        repo = git.Repo(path='/home/viet/backup_project/.git')
     git_add(repo)
     git_commit(repo)
     git_push(repo)
