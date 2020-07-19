@@ -7,7 +7,7 @@ from collections import namedtuple
 
 BACKUP_FILES = ('/etc/vimrc',
                 '/home/viet/.bashrc',
-                '/home/viet/ili9341.txt')
+                )
 
 BACKUP_DIR = ('/home/viet/backup_folder')
 
