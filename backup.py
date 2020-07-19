@@ -111,6 +111,7 @@ def post_action_menu():
 
 def git_add(repo):
     repo.git.add('--all')
+    print('Git add')
 
 
 def git_commit(repo, message=None, author=None):
@@ -120,11 +121,13 @@ def git_commit(repo, message=None, author=None):
         author = 'quangviet910@gmail.com'
 
     repo.git.commit(f'-m {message}', author=author)
+    print('Git commit')
 
 
 def git_push(repo):
     origin = repo.remote(name='origin')
     origin.push()
+    print('Git push')
 
 
 def push_to_repo(repo=None):
