@@ -9,6 +9,10 @@ BACKUP_FILES = ('/etc/vimrc',
                 '/home/viet/.bashrc',
                 )
 
+GIT_USERNAME = 'quangviet910@gmail.com'
+GIT_PASSWORD = 'Qviet1997!@#'
+GIT_URL = f'https://{GIT_USERNAME}:{GIT_PASSWORD}@github.com/st3i3r/backup-automation.git'
+
 BACKUP_DIR = ('/home/viet/backup_folder')
 
 OptionsTuple = namedtuple('OptionsTuple', 'index func description')
