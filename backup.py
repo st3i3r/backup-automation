@@ -2,17 +2,17 @@ import os
 import time
 import shutil
 import sys
-from git import Repo
+import git
 from collections import namedtuple
 
-
 BACKUP_FILES = ('/etc/vimrc',
-                '/home/viet/.bashrc')
+                '/home/viet/.bashrc',
+                '/home/viet/ili9341.txt')
 
 BACKUP_DIR = ('/home/viet/backup_folder')
 
-
 OptionsTuple = namedtuple('OptionsTuple', 'index func description')
+
 
 def decorate(func):
     def wrapper(*args, **kwargs):
@@ -44,7 +44,10 @@ def gather_backup_files():
             sys.exit(-1)
         else:
             try:
-                shutil.copy2(src=file, dst=BACKUP_DIR)
+                if os.path.isdir(file):
+                    shutil.copytree(src=file, dst=BACKUP_DIR)
+                else:
+                    shutil.copy2(src=file, dst=BACKUP_DIR)
                 print(f'[+] Copied file {file} to backup directory')
             except FileNotFoundError:
                 print(f'[!!!] File {repr(file)} doesn\'t exist. Ignored.')
@@ -57,7 +60,7 @@ def main():
     while True:
         os.system('clear')
         options = main_menu()
-        
+
         user_input = input('\nChoose an option: ')
         while not user_input.isdigit():
             print('Please specify a valid index !!!')
@@ -77,7 +80,6 @@ def main():
             os.system('clear')
 
 
-
 @decorate
 def main_menu():
     options = list()
@@ -86,10 +88,10 @@ def main_menu():
                                 func=gather_backup_files,
                                 description='Gather backup files into backup dir'))
     options.append(OptionsTuple(index=2,
-                                func=None,
+                                func=push_to_repo,
                                 description='Push to git repository'))
     options.append(OptionsTuple(index=3,
-                                func=lambda : sys.exit(0),
+                                func=lambda: sys.exit(0),
                                 description='Exit'))
 
     for option in options:
@@ -97,10 +99,37 @@ def main_menu():
 
     return options
 
+
 def post_action_menu():
     print('\n1. Back to main menu')
 
 
-#TODO: implement git functionality
+def git_add(repo):
+    repo.git.add('--all')
+
+
+def git_commit(repo, message=None, author=None):
+    if not message:
+        message = 'Update configuration files.'
+    if not author:
+        author = 'quangviet910@gmail.com'
+
+    repo.git.commit('-m', message, author=author)
+
+
+def git_push(repo):
+    origin = repo.remote(name='origin')
+    origin.push()
+
+
+def push_to_repo(repo=None):
+    if not repo:
+        repo = git.Repo(path='/home/viet/backup_project/')
+    git_add(repo)
+    git_commit(repo)
+    git_push(repo)
+
+
+# TODO: implement git functionality
 if __name__ == '__main__':
     main()
