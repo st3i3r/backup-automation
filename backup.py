@@ -118,7 +118,7 @@ def git_commit(repo, message=None, author=None):
     if not author:
         author = 'quangviet910@gmail.com'
 
-    repo.git.commit('-m', message, author=author)
+    repo.git.commit(f'-m {message}', author=author)
 
 
 def git_push(repo):
